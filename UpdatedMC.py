@@ -17,8 +17,8 @@ class Lattice:
         initial_phi=0.1,  # Initial magnitude of uniform phi distribution
         fluct_h=0.001,  # Scaling parameter for h fluctuations
         fluct_phi=0.001 * 10,  # Scaling parameter for phi fluctuations
-        a1=1000,  # coefficient of electrostatic interactions (repulsion)
-        a2=10000 * 2,  # coefficient of extra density of colloids
+        a1=1000 * 1.5,  # coefficient of electrostatic interactions (repulsion)
+        a2=10000 * 3,  # coefficient of extra density of colloids
         a3=1000000,  # coeff of surface tension
         a4=10000,  # coefficient of density difference of liquids??
         beta=1,  # 1/T term
@@ -549,7 +549,7 @@ newgrid = Lattice(
 # e.g. newgrid.beta=1, newgrid.a1=10
 
 interval = 1000
-iterations = 800000
+iterations = 500000
 
 # Creates empty arrays to store quantites of interest
 energy_array = np.zeros(iterations)[::interval]
