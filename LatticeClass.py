@@ -34,6 +34,8 @@ class Lattice:
         # Initialising coefficients/parameters as modifiable class attributes
         self.n = n
         self.m = m
+        self.num_rows = 4 * (self.n + 1)
+        self.num_columns = 4 * (self.m + 1)
 
         self.initial_phi = initial_phi
         self.fluct_h = fluct_h
@@ -58,23 +60,24 @@ class Lattice:
 
         # Array attributes for storing the indices and values that will be used in each update
         # These aren't likely to be useful outside of the class
+        # They have been set as private attributes using __ notation
 
-        self.start_rowindex = np.zeros(self.m * self.n)
-        self.start_columnindex = np.zeros(self.m * self.n)
-        self.h_rowindex = np.zeros(self.m * self.n)
-        self.h_columnindex = np.zeros(self.m * self.n)
-        self.phi_rowindex = np.zeros(self.m * self.n)
-        self.phi_columnindex = np.zeros(self.m * self.n)
+        self.__start_rowindex = np.zeros(self.m * self.n)
+        self.__start_columnindex = np.zeros(self.m * self.n)
+        self.__h_rowindex = np.zeros(self.m * self.n)
+        self.__h_columnindex = np.zeros(self.m * self.n)
+        self.__phi_rowindex = np.zeros(self.m * self.n)
+        self.__phi_columnindex = np.zeros(self.m * self.n)
 
-        self.new_h = np.zeros(3 * self.m * self.n)
-        self.new_phi = np.zeros(3 * self.m * self.n)
-        self.energy_change = np.zeros(self.m * self.n)
+        self.__new_h = np.zeros(3 * self.m * self.n)
+        self.__new_phi = np.zeros(3 * self.m * self.n)
+        self.__energy_change = np.zeros(self.m * self.n)
 
-        self.all_rowindex = np.concatenate(
-            (self.start_rowindex, self.h_rowindex, self.phi_rowindex)
+        self.__all_rowindex = np.concatenate(
+            (self.__start_rowindex, self.__h_rowindex, self.__phi_rowindex)
         )
-        self.all_columnindex = np.concatenate(
-            (self.start_columnindex, self.h_columnindex, self.phi_columnindex)
+        self.__all_columnindex = np.concatenate(
+            (self.__start_columnindex, self.__h_columnindex, self.__phi_columnindex)
         )
 
         # Initialises attributes that track mean and std of h and phi arrays
@@ -82,8 +85,8 @@ class Lattice:
         self.phi_mean, self.phi_std = np.mean(self.phi_array), np.std(self.phi_array)
 
         # Arrays that can store the move at each turn (redundant attribute)
-        self.start_array = emptyarray
-        self.move_array = emptyarray
+        self.__start_array = emptyarray
+        self.__move_array = emptyarray
 
     def draw_fields(self, save=False):
         """Displays the current h_array and phi_array using plt.matshow.
@@ -136,7 +139,7 @@ class Lattice:
         self.h_mean, self.h_std = np.mean(self.h_array), np.std(self.h_array)
         self.phi_mean, self.phi_std = np.mean(self.phi_array), np.std(self.phi_array)
 
-    def update_move_indices(self):
+    def _update_move_indices(self):
         """Chooses which lattice points to try and alter, this is called within make_update():
 
         - Randomly chooses a starting lattice point to update from within a 4x4 square
@@ -181,36 +184,37 @@ class Lattice:
 
         # Update all the index attributes
 
-        self.start_rowindex = start_rowindex  # Starting lattice points
-        self.start_columnindex = start_columnindex
+        self.__start_rowindex = start_rowindex  # Starting lattice points
+        self.__start_columnindex = start_columnindex
 
-        self.h_rowindex = h_rowindex  # Lattice points that h will 'move' to
-        self.h_columnindex = h_columnindex
+        self.__h_rowindex = h_rowindex  # Lattice points that h will 'move' to
+        self.__h_columnindex = h_columnindex
 
-        self.phi_rowindex = phi_rowindex  # Lattice points that phi will 'move' to
-        self.phi_columnindex = phi_columnindex
+        self.__phi_rowindex = phi_rowindex  # Lattice points that phi will 'move' to
+        self.__phi_columnindex = phi_columnindex
 
-        self.all_rowindex = np.concatenate(
+        self.__all_rowindex = np.concatenate(
             (
-                self.start_rowindex,
-                self.h_rowindex,
-                self.phi_rowindex,
+                self.__start_rowindex,
+                self.__h_rowindex,
+                self.__phi_rowindex,
             )  # Collecting all lattice points that will need to be updated
         )
-        self.all_columnindex = np.concatenate(
-            (self.start_columnindex, self.h_columnindex, self.phi_columnindex)
+        self.__all_columnindex = np.concatenate(
+            (self.__start_columnindex, self.__h_columnindex, self.__phi_columnindex)
         )
 
+    """
     def draw_move(self):
-        """Redundant method that was used in bug fixing. Displays an array indicating all the lattice points that will be updated."""
+        '''Redundant method that was used in bug fixing. Displays an array indicating all the lattice points that will be updated.'''
 
         figure = plt.figure()
         axes = figure.add_subplot(111)
         visual = np.zeros((4 * (self.n + 1), 4 * (self.m + 1)))
 
-        visual[self.start_rowindex, self.start_columnindex] = 1
-        visual[self.h_rowindex, self.h_columnindex] = 2
-        visual[self.phi_rowindex, self.phi_columnindex] = 3
+        visual[self.__start_rowindex, self.__start_columnindex] = 1
+        visual[self.__h_rowindex, self.__h_columnindex] = 2
+        visual[self.__phi_rowindex, self.__phi_columnindex] = 3
 
         move_plot = axes.matshow(visual)
 
@@ -222,27 +226,28 @@ class Lattice:
 
         plt.tight_layout()
         plt.show()
+    """
 
-    def update_h(self):
-        """Updates the self.new_h attribute, called within make_update():
+    def _update_h(self):
+        """Updates the self.__new_h attribute, called within make_update():
 
         - A copy of the self.h_array is made
         - A series of random height fluctuations are generated, scaled by self.fluct_h
         - These fluctuations are added to the starting lattice points
         - These fluctuations are subtracted from the corresponding nearest neighbour
-        - The new h values in this copied array are saved under the attribute self.new_h
+        - The new h values in this copied array are saved under the attribute self.__new_h
         """
 
         # Making a copy of original h-array points that can be manipulated freely
         new_h = np.concatenate(
             (
-                self.h_array[self.start_rowindex, self.start_columnindex],
-                self.h_array[self.h_rowindex, self.h_columnindex],
+                self.h_array[self.__start_rowindex, self.__start_columnindex],
+                self.h_array[self.__h_rowindex, self.__h_columnindex],
             )
         ).copy()
 
         fluct_h = self.fluct_h * (
-            random.random(np.size(self.start_rowindex)) - 0.5
+            random.random(np.size(self.__start_rowindex)) - 0.5
         )  # Generating random h fluctuations
 
         fluct_h = np.concatenate((fluct_h, -fluct_h))
@@ -250,26 +255,28 @@ class Lattice:
         new_h += fluct_h
 
         new_h = np.concatenate(
-            (new_h, self.h_array[self.phi_rowindex, self.phi_columnindex])
+            (new_h, self.h_array[self.__phi_rowindex, self.__phi_columnindex])
         )
 
-        self.new_h = new_h  # An array of the updated h values for every lattice point of interest (points are listed as start,h-move,phi-move)
+        self.__new_h = new_h  # An array of the updated h values for every lattice point of interest (points are listed as start,h-move,phi-move)
 
-    def update_phi(self):
-        """Updates the self.new_phi attribute, called within make_update():
+    def _update_phi(self):
+        """Updates the self.__new_phi attribute, called within make_update():
 
         - A copy of the self.phi_array is made
         - A series of random height fluctuations are generated, scaled by self.fluct_phi
         - These fluctuations are added to the starting lattice points
         - These fluctuations are subtracted from the corresponding nearest neighbour
         - Additional structure is used to ensure phi is always positive
-        - The new phi values in this copied array are saved under the attribute self.new_phi
+        - The new phi values in this copied array are saved under the attribute self.__new_phi
         """
 
         # Making a copy of original phi-array points that can be manipulated freely
 
-        startphi = self.phi_array[self.start_rowindex, self.start_columnindex].copy()
-        movephi = self.phi_array[self.phi_rowindex, self.phi_columnindex].copy()
+        startphi = self.phi_array[
+            self.__start_rowindex, self.__start_columnindex
+        ].copy()
+        movephi = self.phi_array[self.__phi_rowindex, self.__phi_columnindex].copy()
 
         fluct_phi = self.fluct_phi * (
             random.random(self.n * self.m) - 0.5
@@ -292,14 +299,14 @@ class Lattice:
         new_phi = np.concatenate(
             (
                 new_startphi,
-                self.phi_array[self.h_rowindex, self.h_columnindex],
+                self.phi_array[self.__h_rowindex, self.__h_columnindex],
                 new_movephi,
             )
         )
 
-        self.new_phi = new_phi  # An array of the updated phi values for every lattice point of interest (listed as start,h-move,phi-move)
+        self.__new_phi = new_phi  # An array of the updated phi values for every lattice point of interest (listed as start,h-move,phi-move)
 
-    def delta_energy_el(self) -> np.ndarray:
+    def _delta_energy_el(self) -> np.ndarray:
         """Calculates the change in electrostatic energy associated with updating from phi to new_phi, used in self.calc_energy_change():
 
         - Energy change is calculated for all relevant lattice points in each 4x4 grid i.e. the starting points and the chosen nearest neighbours,
@@ -310,13 +317,13 @@ class Lattice:
         """
 
         el_energy = self.a1 * (
-            self.new_phi ** (5 / 2)
-            - self.phi_array[self.all_rowindex, self.all_columnindex] ** (5 / 2)
+            self.__new_phi ** (5 / 2)
+            - self.phi_array[self.__all_rowindex, self.__all_columnindex] ** (5 / 2)
         )
         sum_el_energy = (el_energy.reshape(3, -1)).sum(axis=0)
         return sum_el_energy  # an array with the change in electrostatic energy for each 4x4grid (array of length equal to n*m)
 
-    def delta_energy_gr1(self) -> np.ndarray:
+    def _delta_energy_gr1(self) -> np.ndarray:
         """Calculates the change in gravitational energy associated with updating from phi/h to new_phi/new_h, used in self.calc_energy_change():
 
         - Energy change is calculated for all relevant lattice points in each 4x4 grid i.e. the starting points and the chosen nearest neighbours,
@@ -327,17 +334,17 @@ class Lattice:
         """
 
         gr1_energy = self.a2 * (
-            (self.new_phi * self.new_h)
+            (self.__new_phi * self.__new_h)
             - (
-                self.phi_array[self.all_rowindex, self.all_columnindex]
-                * self.h_array[self.all_rowindex, self.all_columnindex]
+                self.phi_array[self.__all_rowindex, self.__all_columnindex]
+                * self.h_array[self.__all_rowindex, self.__all_columnindex]
             )
         )
 
         sum_gr1_energy = (gr1_energy.reshape(3, -1)).sum(axis=0)
         return sum_gr1_energy  # an array with the change in colloid GPE for each 4x4 grid (array of length equal to n*m)
 
-    def delta_energy_gr2(self) -> np.ndarray:
+    def _delta_energy_gr2(self) -> np.ndarray:
         """Calculates the change in fluid gravitational energy associated with updating from phi/h to new_phi/new_h, used in self.calc_energy_change():
 
         - Energy change is calculated for all relevant lattice points in each 4x4 grid i.e. the starting points and the chosen nearest neighbours,
@@ -351,15 +358,15 @@ class Lattice:
             0.5
             * self.a4
             * (
-                self.new_h**2
-                - self.h_array[self.all_rowindex, self.all_columnindex] ** 2
+                self.__new_h**2
+                - self.h_array[self.__all_rowindex, self.__all_columnindex] ** 2
             )
         )
         sum_gr2_energy = (gr2_energy.reshape(3, -1)).sum(axis=0)
 
         return sum_gr2_energy  # an array with the change in fluid GPE for each 4x4 grid (array of length equal to n*m)
 
-    def delta_energy_st(self) -> np.ndarray:
+    def _delta_energy_st(self) -> np.ndarray:
         """Calculates the change in surface tension energy associated with updating from h to new_h, used in self.calc_energy_change():
 
         - Energy change is calculated for all relevant lattice points in each 4x4 grid i.e. the starting points and the chosen nearest neighbours,
@@ -373,25 +380,25 @@ class Lattice:
         # Area calculations use a first order approx in fluct_h/L where L is the real space distance between lattice points
 
         new_h_array = self.h_array.copy()
-        new_h_array[self.all_rowindex, self.all_columnindex] = self.new_h
+        new_h_array[self.__all_rowindex, self.__all_columnindex] = self.__new_h
 
-        st_energy = np.zeros(int(len(self.new_h) * 2 / 3))
+        st_energy = np.zeros(int(len(self.__new_h) * 2 / 3))
 
         # for convenience create a row and column index list of all indices that have an altered height
 
-        changed_rowindex = np.concatenate((self.start_rowindex, self.h_rowindex))
+        changed_rowindex = np.concatenate((self.__start_rowindex, self.__h_rowindex))
         changed_columnindex = np.concatenate(
-            (self.start_columnindex, self.h_columnindex)
+            (self.__start_columnindex, self.__h_columnindex)
         )
 
         # Creating a boolean mask that will be used to stop double counting
         mask = np.ones((4 * (self.n + 1), 4 * (self.m + 1))).astype(bool)
-        mask[self.h_rowindex, self.h_columnindex] = False
+        mask[self.__h_rowindex, self.__h_columnindex] = False
 
         # To cut out repetitiveness
         original_h = self.h_array[changed_rowindex, changed_columnindex]
-        updated_h = self.new_h[
-            : (int(len(self.new_h) * (2 / 3)))
+        updated_h = self.__new_h[
+            : (int(len(self.__new_h) * (2 / 3)))
         ]  # Only interested in the lattice points where h has changed
 
         # Need to 'roll' in 4 directions and also multiply by mask each time:
@@ -456,7 +463,7 @@ class Lattice:
         sum_st_energy = (st_energy.reshape(2, -1)).sum(axis=0)
         return sum_st_energy  # an array with the change in surface tension energy for each 4x4 grid (array of length equal to n*m)
 
-    def calc_energy_change(self):
+    def _calc_energy_change(self):
         """Calculates the total energy changes associated with updating each 4x4 grid and stores this in the self.energy_change attribute.
         - self.energy_change will be an array of length n*m i.e. an energy change associated with each grid
         - This is called within the make_update() function
@@ -468,16 +475,16 @@ class Lattice:
         total += self.delta_energy_gr1()
         total += self.delta_energy_gr2()
         total += self.delta_energy_st()
-        self.energy_change = total
+        self.__energy_change = total
 
-    def check_update(self) -> np.ndarray:
+    def _check_update(self) -> np.ndarray:
         """Uses the Boltzmann/Metropolis criterion to decide whether to update each of the 4x4 grids. Called within make_update().
 
         Returns:
             np.ndarray: Boolean array of length 3*n*m (1:update, 0:don't update) for all 3*n*m relevant lattice points
         """
 
-        total = self.energy_change
+        total = self.__energy_change
         parray = np.exp(-self.beta * total)  # Metropolis criterion
 
         check_array = np.where(
@@ -501,26 +508,26 @@ class Lattice:
         - For each call of make_update(), one count is added to the iteration_count attribute
         - For each call of make_update(), all the accepted energy changes are summed and added to the energy_count attribute
         """
-        self.update_move_indices()
-        self.update_h()
-        self.update_phi()
-        self.calc_energy_change()
-        update_array = self.check_update()
+        self._update_move_indices()
+        self._update_h()
+        self._update_phi()
+        self._calc_energy_change()
+        update_array = self._check_update()
 
-        self.h_array[self.all_rowindex, self.all_columnindex] = np.where(
+        self.h_array[self.__all_rowindex, self.__all_columnindex] = np.where(
             update_array == 1,
-            self.new_h,
-            self.h_array[self.all_rowindex, self.all_columnindex],
+            self.__new_h,
+            self.h_array[self.__all_rowindex, self.__all_columnindex],
         )
 
-        self.phi_array[self.all_rowindex, self.all_columnindex] = np.where(
+        self.phi_array[self.__all_rowindex, self.__all_columnindex] = np.where(
             update_array,
-            self.new_phi,
-            self.phi_array[self.all_rowindex, self.all_columnindex],
+            self.__new_phi,
+            self.phi_array[self.__all_rowindex, self.__all_columnindex],
         )
         self.iteration_count += 1
         self.energy_count += np.sum(
-            (update_array[: self.n * self.m] * self.energy_change)
+            (update_array[: self.n * self.m] * self.__energy_change)
         )
 
     def save_lattice(self, filename):

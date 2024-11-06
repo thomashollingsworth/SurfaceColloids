@@ -2,10 +2,16 @@
 
 from Standard_Imports import *
 
-testgrid = Lattice(5, 5)
+testgrid = Lattice(25, 25)
+
+
+num_lattice_points = testgrid.num_columns * testgrid.num_rows
+
+testgrid.a2 = 50000
+testgrid.
 
 interval = 1000
-iterations = 500000
+iterations = 100000
 
 
 energy_array = np.zeros(iterations)[::interval]
@@ -15,7 +21,7 @@ for i in range(iterations):
 
     # Could edit any of the parameters during the iteration process
     # e.g. could dynamically alter beta using a Simulated Annealing algorithm
-    # (newgrid.beta = 0.0001 + 0.2069 * np.log(1 + i))
+    # testgrid.beta = 0.0001 + 0.2069 * np.log(1 + i)
 
     testgrid.make_update()  # repetitively updating the lattice
 
@@ -49,3 +55,5 @@ ax2.tick_params(axis="y", labelcolor=color2)
 
 fig.suptitle("Total energy and Deviation of Phi Disturbution")
 plt.show()
+
+# testgrid.save_lattice("Lattice_Name.pkl")
