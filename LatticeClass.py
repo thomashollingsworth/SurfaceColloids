@@ -19,12 +19,12 @@ class Lattice:
         m=5,  # number of columns of 4x4 grids
         initial_phi=0.1,  # Initial magnitude of uniform phi distribution
         fluct_h=0.001,  # Scaling parameter for h fluctuations
-        fluct_phi=0.001 * 10,  # Scaling parameter for phi fluctuations
+        fluct_phi=0.001,  # Scaling parameter for phi fluctuations
         a1=1000 * 1.5,  # coefficient of electrostatic interactions (repulsion)
         a2=10000 * 3,  # coefficient of extra density of colloids
         a3=1000000,  # coeff of surface tension
         a4=10000,  # coefficient of density difference of liquids??
-        beta=1,  # 1/T term
+        beta=0.1,  # 1/T term
     ) -> None:
 
         # Counters for the number of make_update() iterations and total energy change of system
@@ -471,10 +471,10 @@ class Lattice:
 
         total = np.zeros(self.n * self.m)
 
-        total += self.delta_energy_el()
-        total += self.delta_energy_gr1()
-        total += self.delta_energy_gr2()
-        total += self.delta_energy_st()
+        total += self._delta_energy_el()
+        total += self._delta_energy_gr1()
+        total += self._delta_energy_gr2()
+        total += self._delta_energy_st()
         self.__energy_change = total
 
     def _check_update(self) -> np.ndarray:
@@ -555,12 +555,12 @@ if __name__ == "__main__":
     This is some example use of the Lattice class"""
 
     newgrid = Lattice(
-        5, 5
+        10, 10
     )  # Generates a lattice with a certain size, all other parameters could also be explicitly specified here
     # e.g. newgrid.beta=1, newgrid.a1=10
 
     interval = 1000
-    iterations = 500000
+    iterations = 250000
 
     # Creates empty arrays to store quantites of interest
     energy_array = np.zeros(iterations)[::interval]

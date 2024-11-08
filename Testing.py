@@ -1,3 +1,5 @@
 from Standard_Imports import *
 
-testgrid = Lattice(10, 10)
+arr = np.array([])
+arr = np.append(arr, 10)
+print(arr)

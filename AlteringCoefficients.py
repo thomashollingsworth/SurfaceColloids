@@ -2,16 +2,22 @@
 
 from Standard_Imports import *
 
-testgrid = Lattice(25, 25)
+testgrid = Lattice(5, 5)
 
 
 num_lattice_points = testgrid.num_columns * testgrid.num_rows
 
-testgrid.a2 = 50000
-testgrid.
+
+new_initial_phi_array = np.zeros((testgrid.num_rows, testgrid.num_columns))
+new_initial_phi_array[testgrid.num_rows // 2, testgrid.num_columns // 2] = (
+    num_lattice_points * testgrid.initial_phi
+)
+testgrid.phi_array = new_initial_phi_array
+testgrid.a2 *= 3
+testgrid.fluct_phi *= 10
 
 interval = 1000
-iterations = 100000
+iterations = 250000
 
 
 energy_array = np.zeros(iterations)[::interval]
@@ -22,6 +28,8 @@ for i in range(iterations):
     # Could edit any of the parameters during the iteration process
     # e.g. could dynamically alter beta using a Simulated Annealing algorithm
     # testgrid.beta = 0.0001 + 0.2069 * np.log(1 + i)
+
+    testgrid.beta = 0.03
 
     testgrid.make_update()  # repetitively updating the lattice
 
@@ -46,14 +54,16 @@ ax1.set_ylabel("Energy", color=color1)
 ax1.plot(np.arange(iterations)[::interval], energy_array, color=color1)
 ax1.tick_params(axis="y", labelcolor=color1)
 
+"""
 ax2 = ax1.twinx()
 
 color2 = "tab:green"
 ax2.set_ylabel("Deviation of phi", color=color2)
 ax2.plot(np.arange(iterations)[::interval], phi_std_array, color=color2)
 ax2.tick_params(axis="y", labelcolor=color2)
+"""
 
-fig.suptitle("Total energy and Deviation of Phi Disturbution")
+fig.suptitle("Total Energy")
 plt.show()
 
 # testgrid.save_lattice("Lattice_Name.pkl")
