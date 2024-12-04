@@ -2,7 +2,7 @@
 
 from Standard_Imports import *
 
-testgrid = Lattice(5, 5)
+testgrid = Lattice(25, 25)
 
 
 num_lattice_points = testgrid.num_columns * testgrid.num_rows
