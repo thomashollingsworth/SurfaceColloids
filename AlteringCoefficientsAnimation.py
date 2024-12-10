@@ -6,11 +6,11 @@ from Standard_Imports import *
 import matplotlib.animation as animation
 
 
-lattice_name = "ABCD"  # , "Uniform","PointSource" etc.
+lattice_name = "Testing"  # , "Uniform","PointSource" etc.
 
 # ________________________________________________________
 # testgrid1 = Lattice.load(...)
-testgrid = Lattice(8, 8)
+testgrid = Lattice(25, 25)
 
 testgrid.energy_count = 0
 # ________________________________________________________
@@ -38,9 +38,17 @@ def logarithmic_temp_annealing(beta_0, beta_f, frame_number, frame_count):
     )
 
 
+# Setting start and end temps
+beta_0 = 0.001
+beta_f = 1
+
+# a2 Values
+testgrid.a2 = 8 * 10000
+
+
 # For animation
 frame_iterations = 1000
-total_iterations = 50000
+total_iterations = 10000
 
 frame_number = total_iterations // frame_iterations
 
@@ -67,17 +75,9 @@ energy_array = []
 
 
 # Update function for animation
-def update_frame(frame_count):
-
-    beta_0 = 0.1
-    beta_f = 1
-
-    # For animation
-    frame_iterations = 1000
-    total_iterations = 50000
+def update_frame(frame_count, frame_iterations, total_iterations, beta_0, beta_f):
 
     frame_number = total_iterations // frame_iterations
-
     start_time = time.time()
 
     testgrid.beta = logarithmic_temp_annealing(
@@ -95,17 +95,7 @@ def update_frame(frame_count):
     # Update the data for the new frame
     cax1.set_data(testgrid.phi_array)
 
-    if len(energy_array) == 0:
-
-        ax2.set_ylim(0, 1.1 * energy_array[0])  # Initial adjustment for first frame
-
-    else:  # After the first frame
-        ax2.set_ylim(
-            energy_array[frame_count]
-            - 5 * np.abs(energy_array[frame_count] - energy_array[frame_count - 1]),
-            energy_array[frame_count]
-            + 5 * np.abs(energy_array[frame_count] - energy_array[frame_count - 1]),
-        )  # Dynamically adjust y-axis to fit energy values
+    ax2.set_ylim(np.min(energy_array), np.max(energy_array))
 
     end_time = time.time()
 
@@ -116,7 +106,13 @@ def update_frame(frame_count):
 
 
 # Create the animation
-ani = animation.FuncAnimation(fig, update_frame, frames=frame_number, blit=True)
+ani = animation.FuncAnimation(
+    fig,
+    update_frame,
+    frames=frame_number,
+    fargs=(frame_iterations, total_iterations, beta_0, beta_f),
+    blit=True,
+)
 
 # Save or show the animation
 # To save the animation as a GIF or video file

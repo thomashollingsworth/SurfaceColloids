@@ -21,15 +21,16 @@ class Lattice:
         fluct_phi=5,  # Max. percentage for phi fluctuations at each step (+- fluct_phi%)
         fluct_h=5,  # Max. percentage change of h
         min_fluct_h=0.01,  # Min. size for a h fluctuation
-        a1=10 * 1.5,  # coefficient of electrostatic interactions (repulsion)
-        a2=1000000 * 5,  # coefficient of extra density of colloids
-        a3=1000,  # coeff of surface tension
-        a4=100,  # coefficient of density difference of liquids??
-        beta=2,  # 1/T term
+        a1=1000,  # coefficient of electrostatic interactions (repulsion)
+        a2=10000 * 5,  # coefficient of extra density of colloids
+        a3=1000000,  # coeff of surface tension
+        a4=10000,  # coefficient of density difference of liquids??
+        beta=1,
     ) -> None:
 
         # Counters for the number of make_update() iterations and total energy change of system
         self.energy_count = 0
+        self.energy_array = []
         self.iteration_count = 0
 
         # Initialising coefficients/parameters as modifiable class attributes
@@ -523,12 +524,18 @@ class Lattice:
         Returns:
             np.ndarray: Boolean array of length 2*n*m (1:update, 0:don't update) for all 2*n*m relevant lattice points
         """
-
+        # |h|+(min_fluct_h*100/fluct_h)
         total = self.__energy_change
         parray = (
             np.exp(-self.beta * total)
-            * self.h_array[self.__start_rowindex, self.__start_columnindex]
-            / self.h_array[self.__h_rowindex, self.__h_columnindex]
+            * (
+                np.abs(self.h_array[self.__start_rowindex, self.__start_columnindex])
+                + self.min_fluct_h * 100 / self.fluct_h
+            )
+            / (
+                np.abs(self.h_array[self.__h_rowindex, self.__h_columnindex])
+                + self.min_fluct_h * 100 / self.fluct_h
+            )
         )  # Metropolis criterion
 
         check_array = np.where(
@@ -615,6 +622,7 @@ class Lattice:
         )
 
         self.iteration_count += 1
+        self.energy_array.append(self.energy_count)
 
     def save_lattice(self, filename):
         """Saves the current instance of the Lattice class using pickle
@@ -688,5 +696,5 @@ if __name__ == "__main__":
     ax2.plot(np.arange(iterations)[::interval], phi_std_array, color=color2)
     ax2.tick_params(axis="y", labelcolor=color2)
 
-    fig.suptitle("Total energy and Deviation of Phi Disturbution")
+    fig.suptitle("Total Energy and Deviation of Phi Disturbution")
     plt.show()
