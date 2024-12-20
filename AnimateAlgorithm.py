@@ -4,7 +4,7 @@ from Standard_Imports import *
 import matplotlib.animation as animation
 
 
-lattice_name = "UPDATE2_"  # , "Uniform","PointSource" etc.
+lattice_name = "VM"  # , "Uniform","PointSource" etc.
 
 # ________________________________________________________
 # testgrid = Lattice.load("a2_260_clustered.pkl")
@@ -36,7 +36,7 @@ beta_f = 200000  # ROOM TEMP
 
 
 # a2 Values
-testgrid.a2 * 30
+testgrid.a2 *= 30
 # testgrid.a1 *= 100000
 # testgrid.a3
 
