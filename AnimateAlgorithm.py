@@ -7,8 +7,8 @@ import matplotlib.animation as animation
 lattice_name = "UPDATE2_"  # , "Uniform","PointSource" etc.
 
 # ________________________________________________________
-testgrid = Lattice.load("a2_260_clustered.pkl")
-# testgrid = Lattice(15, 15)
+# testgrid = Lattice.load("a2_260_clustered.pkl")
+testgrid = Lattice(25, 25)
 
 testgrid.energy_count = 0
 # ________________________________________________________
@@ -42,7 +42,7 @@ testgrid.a2 * 30
 
 
 # For animation
-frame_iterations = 2000
+frame_iterations = 1000
 total_iterations = 200000
 
 frame_number = total_iterations // frame_iterations
@@ -94,7 +94,7 @@ def update_frame(frame_count, frame_iterations, total_iterations, beta_0, beta_f
     end_time = time.time()
 
     print(
-        f"Frame {frame_count + 1}/{frame_number} completed in {end_time - start_time:.3f} seconds (a2={testgrid.a2})"
+        f"Frame {frame_count + 1}/{frame_number} completed in {end_time - start_time:.3f} seconds"
     )
     return [cax1, line1]
 
