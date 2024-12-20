@@ -36,7 +36,7 @@ beta_f = 200000  # ROOM TEMP
 
 
 # a2 Values
-testgrid.a2 *= 30
+testgrid.a2 *= 50
 # testgrid.a1 *= 100000
 # testgrid.a3
 
