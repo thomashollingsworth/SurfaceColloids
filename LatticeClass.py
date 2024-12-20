@@ -17,15 +17,15 @@ class Lattice:
         self,
         n=5,  # number of rows of 4x4 grids
         m=5,  # number of columns of 4x4 grids
-        initial_phi=0.1,  # Initial magnitude of uniform phi distribution
+        initial_phi=0.001,  # Initial magnitude of uniform phi distribution
         fluct_phi=5,  # Max. percentage for phi fluctuations at each step (+- fluct_phi%)
         fluct_h=5,  # Max. percentage change of h
-        min_fluct_h=0.01,  # Min. size for a h fluctuation
-        a1=1000,  # coefficient of electrostatic interactions (repulsion)
-        a2=10000 * 5,  # coefficient of extra density of colloids
-        a3=1000000,  # coeff of surface tension
-        a4=10000,  # coefficient of density difference of liquids??
-        beta=1,
+        min_fluct_h=0.0001,  # Min. size for a h fluctuation
+        a1=12,  # coefficient of electrostatic interactions (repulsion)
+        a2=13,  # coefficient of extra density of colloids
+        a3=2000,  # coeff of surface tension
+        a4=1.3,  # coefficient of density difference of liquids??
+        beta=200000,
     ) -> None:
 
         # Counters for the number of make_update() iterations and total energy change of system
@@ -89,10 +89,18 @@ class Lattice:
         # Initialises attributes that track mean and std of h and phi arrays
         self.h_mean, self.h_std = np.mean(self.h_array), np.std(self.h_array)
         self.phi_mean, self.phi_std = np.mean(self.phi_array), np.std(self.phi_array)
+        self.phi_std_array = []
 
         # Arrays that can store the move at each turn (redundant attribute)
         self.__start_array = emptyarray
         self.__move_array = emptyarray
+
+    def reset_counters(self):
+        """Resets the energy_count, iteration_count, energy array and std array attributes to 0."""
+        self.energy_count = 0
+        self.iteration_count = 0
+        self.energy_array = []
+        self.phi_std_array = []
 
     def draw_fields(self, save=False):
         """Displays the current h_array and phi_array using plt.matshow.
@@ -120,7 +128,7 @@ class Lattice:
         plt.tight_layout()
 
         if save:
-            self.update_stats()
+            self.update_all_stats()
 
             timestamp = datetime.datetime.now().strftime(
                 "%d_%H%M"
@@ -138,12 +146,18 @@ class Lattice:
 
         plt.show()
 
-    def update_stats(self):
+    def update_all_stats(self):
         """Updates the height and phi mean and standard deviation attributes.
         [To save computation time, this method is not included in make_update()]"""
 
         self.h_mean, self.h_std = np.mean(self.h_array), np.std(self.h_array)
         self.phi_mean, self.phi_std = np.mean(self.phi_array), np.std(self.phi_array)
+
+    def track_phi_std(self):
+        """Appends the current standard deviation of the phi array to the phi_std_array attribute.
+        [To save computation time, this method is only called every 1000 iterations]"""
+        self.phi_std = np.std(self.phi_array)
+        self.phi_std_array.append(np.std(self.phi_array))
 
     def _update_move_indices(self):
         """Chooses which lattice points to try and alter for both h and phi, this is called within make_update():
@@ -386,14 +400,11 @@ class Lattice:
             np.ndarray: An array that contains the total electrostatic energy changes in each of the 4x4 grids. shape(n*m)
         """
         # Calcs change in gravity due to h**2 term (not really sure how this works!)
-        gr2_energy = -(
-            0.5
-            * self.a4
-            * (
-                self.__new_h**2
-                - self.h_array[self.__update_rowindex, self.__update_columnindex] ** 2
-            )
+        gr2_energy = self.a4 * (
+            self.__new_h**2
+            - self.h_array[self.__update_rowindex, self.__update_columnindex] ** 2
         )
+
         sum_gr2_energy = (gr2_energy.reshape(2, -1)).sum(axis=0)
 
         return sum_gr2_energy  # an array with the change in fluid GPE for each 4x4 grid (array of length equal to n*m)
@@ -623,6 +634,8 @@ class Lattice:
 
         self.iteration_count += 1
         self.energy_array.append(self.energy_count)
+        if self.iteration_count % 1000 == 0:
+            self.track_phi_std()
 
     def save_lattice(self, filename):
         """Saves the current instance of the Lattice class using pickle
