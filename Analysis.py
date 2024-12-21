@@ -6,7 +6,11 @@ import matplotlib.pyplot as plt
 from scipy.fft import fft2, fftshift
 from scipy.stats import normaltest, norm
 
-new_lattice = Lattice.load("UPDATE2__iters_200000.pkl")
+
+directory = "New_Investigating_a2_results"
+
+
+new_lattice = Lattice.load(os.path.join(directory, "a2_110.0_uniform.pkl"))
 phi_array = new_lattice.phi_array
 phi_std_vals = new_lattice.phi_std_array
 
@@ -70,4 +74,13 @@ plt.xlabel("Iterations")
 plt.ylabel("Standard Deviation of Concentration")
 plt.title("Standard Deviation of Concentration vs Iterations")
 plt.tight_layout()
+plt.show()
+
+# Plot energy vs iterations
+plt.figure()
+plt.plot(np.arange(len(new_lattice.energy_array)), new_lattice.energy_array)
+
+plt.title("Energy vs Iterations")
+plt.xlabel("Iterations")
+plt.ylabel("Energy")
 plt.show()
