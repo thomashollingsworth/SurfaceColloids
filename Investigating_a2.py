@@ -33,8 +33,8 @@ std_vals = pd.DataFrame(index=indices)
 
 def run_metropolis_uniform_initial(a2_val):
     # Choose total iterations and logging iterations
-    total_iters = 1000000
-    logging_iters = 10000  # How often progress is loggeed to output
+    total_iters = 2000000
+    logging_iters = 100000  # How often progress is loggeed to output
 
     # For logging purposes
     process_name = multiprocessing.current_process().name
@@ -47,21 +47,22 @@ def run_metropolis_uniform_initial(a2_val):
     testgrid.a2 = a2_val
 
     # Set start and end temperatures, update temperature periodically
-    beta_0 = 1000
+    beta_0 = 500
     beta_f = 200000  # ROOM TEMP
     beta_update_iters = (
         logging_iters  # Could change this to update temperature more frequently
     )
+    start_time = time.time()
 
     # Running algorithm
     for i in range(total_iters):
-        start_time = time.time()
+
         testgrid.make_update()
-        if i % logging_iters == 0:
+        if i % logging_iters == 0 and i != 0:
             end_time = time.time()
-            testgrid.beta = temp_anneal.logarithmic(
-                beta_0, beta_f, i, total_iters
-            )  # Again, could change this to update temperature more frequently
+            testgrid.beta = temp_anneal.power_law(
+                beta_0, beta_f, i, total_iters, 4
+            )  # Increasing power means more time at high temp!
             # Log progress
             print(
                 f"{process_name}({process_id}):Comp.Iter.{i} in {end_time - start_time:.3f}s (uniform, a2={a2_val})"
@@ -70,7 +71,7 @@ def run_metropolis_uniform_initial(a2_val):
             start_time = time.time()  # reset timer
 
     # Save final results to a directory
-    directory = "New_Investigating_a2_results"
+    directory = "Large_Investigating_a2_results"
     os.makedirs(directory, exist_ok=True)
 
     filename = f"a2_{testgrid.a2}_uniform.pkl"
@@ -89,12 +90,12 @@ if __name__ == "__main__":
     def run_metropolis_clustered_initial(a2_val):
         # Locates the final phi array of the highest a2 value for use as initial condition
         highest_a2 = np.max(a2_range)
-        directory = "New_Investigating_a2_results"
+        directory = "Large_Investigating_a2_results"
         file_location = os.path.join(directory, f"a2_{highest_a2}_uniform.pkl")
 
         # Choose total iterations and logging iterations
-        total_iters = 1000000
-        logging_iters = 10000  # How often progress is loggeed to output
+        total_iters = 2000000
+        logging_iters = 100000  # How often progress is loggeed to output
 
         # For logging purposes
         process_name = multiprocessing.current_process().name
@@ -117,21 +118,22 @@ if __name__ == "__main__":
             logging_iters  # Could change this to update temperature more frequently
         )
 
+        start_time = time.time()
         # Running algorithm
         for i in range(total_iters):
-            start_time = time.time()
+
             testgrid.make_update()
-            if i % logging_iters == 0:
+            if i % logging_iters == 0 and i != 0:
                 end_time = time.time()
-                testgrid.beta = temp_anneal.logarithmic(
-                    beta_0, beta_f, i, total_iters
+                testgrid.beta = temp_anneal.power_law(
+                    beta_0, beta_f, i, total_iters, 4
                 )  # Again, could change this to update temperature more frequently
                 # Log progress
                 print(
                     f"{process_name}({process_id}):Comp.Iter.{i} in {end_time - start_time:.3f}s (clustered, a2={a2_val})"
                 )
 
-            start_time = time.time()  # reset timer
+                start_time = time.time()  # reset timer
 
         filename = f"a2_{testgrid.a2}_clustered.pkl"
 
@@ -145,6 +147,6 @@ if __name__ == "__main__":
         )
 
     # Save the results to a csv file
-    directory = "New_Investigating_a2_results"
+    directory = "Large_Investigating_a2_results"
     os.makedirs(directory, exist_ok=True)
     std_vals.to_csv(os.path.join(directory, "std_vals.csv"))

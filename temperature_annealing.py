@@ -25,3 +25,7 @@ def inverse(beta_0, beta_f, frame_number, frame_count):
 
 def quadratic(beta_0, beta_f, frame_number, frame_count):
     return beta_0 + (beta_f - beta_0) * (frame_number / (frame_count + 1)) ** 2
+
+
+def power_law(beta_0, beta_f, frame_number, frame_count, power):
+    return beta_0 + (beta_f - beta_0) * (frame_number / (frame_count + 1)) ** power
