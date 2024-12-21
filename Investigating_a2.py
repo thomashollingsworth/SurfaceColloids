@@ -23,7 +23,7 @@ a2_range = np.around(a2_range)  # round to nearest integer
 std_vals = pd.DataFrame
 
 
-indices = [f"a2:{a2_range[i]}" for i in range(num_cpus)]
+indices = [f"{a2_range[i]}" for i in range(num_cpus)]
 
 
 std_vals = pd.DataFrame(index=indices)
@@ -33,7 +33,7 @@ std_vals = pd.DataFrame(index=indices)
 
 def run_metropolis_uniform_initial(a2_val):
     # Choose total iterations and logging iterations
-    total_iters = 500000
+    total_iters = 1000000
     logging_iters = 10000  # How often progress is loggeed to output
 
     # For logging purposes
@@ -70,7 +70,7 @@ def run_metropolis_uniform_initial(a2_val):
             start_time = time.time()  # reset timer
 
     # Save final results to a directory
-    directory = "Investigating_a2_results"
+    directory = "New_Investigating_a2_results"
     os.makedirs(directory, exist_ok=True)
 
     filename = f"a2_{testgrid.a2}_uniform.pkl"
@@ -89,11 +89,11 @@ if __name__ == "__main__":
     def run_metropolis_clustered_initial(a2_val):
         # Locates the final phi array of the highest a2 value for use as initial condition
         highest_a2 = np.max(a2_range)
-        directory = "Investigating_a2_results"
+        directory = "New_Investigating_a2_results"
         file_location = os.path.join(directory, f"a2_{highest_a2}_uniform.pkl")
 
         # Choose total iterations and logging iterations
-        total_iters = 500000
+        total_iters = 1000000
         logging_iters = 10000  # How often progress is loggeed to output
 
         # For logging purposes
@@ -145,6 +145,6 @@ if __name__ == "__main__":
         )
 
     # Save the results to a csv file
-    directory = "Investigating_a2_results"
+    directory = "New_Investigating_a2_results"
     os.makedirs(directory, exist_ok=True)
     std_vals.to_csv(os.path.join(directory, "std_vals.csv"))
