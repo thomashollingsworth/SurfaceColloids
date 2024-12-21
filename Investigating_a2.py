@@ -33,7 +33,7 @@ std_vals = pd.DataFrame(index=indices)
 
 def run_metropolis_uniform_initial(a2_val):
     # Choose total iterations and logging iterations
-    total_iters = 100000
+    total_iters = 500000
     logging_iters = 10000  # How often progress is loggeed to output
 
     # For logging purposes
@@ -93,7 +93,7 @@ if __name__ == "__main__":
         file_location = os.path.join(directory, f"a2_{highest_a2}_uniform.pkl")
 
         # Choose total iterations and logging iterations
-        total_iters = 100000
+        total_iters = 500000
         logging_iters = 10000  # How often progress is loggeed to output
 
         # For logging purposes
