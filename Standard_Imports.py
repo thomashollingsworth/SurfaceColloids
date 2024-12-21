@@ -5,6 +5,7 @@ from LatticeClass import Lattice
 import numpy as np
 import matplotlib.pyplot as plt
 import numpy.random as random
+import pandas as pd
 
 # Used for saving data
 import csv
