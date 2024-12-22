@@ -7,10 +7,10 @@ from scipy.fft import fft2, fftshift
 from scipy.stats import normaltest, norm
 
 
-directory = "New_Investigating_a2_results"
+directory = "Large_Investigating_a2_results"
 
 
-new_lattice = Lattice.load(os.path.join(directory, "a2_110.0_uniform.pkl"))
+new_lattice = Lattice.load(os.path.join(directory, "a2_196.0_uniform.pkl"))
 phi_array = new_lattice.phi_array
 phi_std_vals = new_lattice.phi_std_array
 
@@ -78,7 +78,10 @@ plt.show()
 
 # Plot energy vs iterations
 plt.figure()
-plt.plot(np.arange(len(new_lattice.energy_array)), new_lattice.energy_array)
+plt.plot(
+    np.arange(len(new_lattice.energy_array))[1000000:],
+    new_lattice.energy_array[1000000:],
+)
 
 plt.title("Energy vs Iterations")
 plt.xlabel("Iterations")
