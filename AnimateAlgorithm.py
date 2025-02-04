@@ -4,14 +4,11 @@ from Standard_Imports import *
 import matplotlib.animation as animation
 
 
-lattice_name = "New"  # , "Uniform","PointSource" etc.
+lattice_name = "test"  # , "Uniform","PointSource" etc.
 
 # ________________________________________________________
 # testgrid = Lattice.load("a2_260_clustered.pkl")
-testgrid = Lattice(25, 25)
-testgrid.a2 = 250
-
-testgrid.set_initial_conditions()
+testgrid = Lattice(10, 10)
 # ________________________________________________________
 """
 # Creating a 'point source' initial condition
@@ -31,20 +28,22 @@ testgrid.phi_array = new_initial_phi_array
 
 
 # Setting start and end temps
-beta_0 = 1000
+beta_0 = 200000
 # beta_f = 5000
 beta_f = 200000  # ROOM TEMP
 
 
-# a2 Values
+# Choose initial conditions (a1 Values standard=12)
+testgrid.a2 = 70  # encourage clustering
+testgrid.a1 =   # encourage uniformity
 
-# testgrid.a1 *= 100000
-# testgrid.a3
+# Set initial conditions
 
+testgrid.set_initial_conditions()
 
 # For animation
 frame_iterations = 1000
-total_iterations = 200000
+total_iterations = 100000
 
 frame_number = total_iterations // frame_iterations
 
@@ -53,7 +52,7 @@ frame_number = total_iterations // frame_iterations
 fig, (ax1, ax2) = plt.subplots(1, 2)
 ax1.set_axis_off()
 ax1.set_title(f"Concentration")
-cax1 = ax1.matshow(testgrid.phi_array, cmap="plasma", vmin=0, vmax=0.02)
+cax1 = ax1.matshow(testgrid.phi_array, cmap="plasma", vmin=0, vmax=0.003)
 fig.colorbar(cax1)
 
 
@@ -113,10 +112,7 @@ ani = animation.FuncAnimation(
 # To save the animation as a GIF or video file
 plt.tight_layout()
 ani.save(
-    f"{lattice_name}_iters_{total_iterations}.mp4",
+    f"{lattice_name}_a1_{testgrid.a1}.mp4",
     writer="ffmpeg",
     fps=10,
 )
-
-
-testgrid.save_lattice(f"{lattice_name}_iters_{total_iterations}.pkl")
