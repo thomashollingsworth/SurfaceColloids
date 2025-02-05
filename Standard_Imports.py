@@ -1,6 +1,7 @@
 """A collection of standard libraries and the Lattice class"""
 
 from LatticeClass import Lattice
+from Test3D import Test3D
 
 import numpy as np
 import matplotlib.pyplot as plt
